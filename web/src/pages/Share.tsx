@@ -51,7 +51,8 @@ export default function SharePage() {
   }
 
   const columns: ColumnsType<ShareItem> = [
-    { title: '分享码', dataIndex: 'code', key: 'code', render: (c: string) => <Tag color="blue">{c}</Tag> },
+    { title: '分享码', dataIndex: 'code', key: 'code', width: 120,
+      render: (c: string, r: any) => <Space>{r.one_time && <Tag color="volcano">一次性</Tag>}<Tag color="blue">{c}</Tag></Space> },
     { title: '提取码', dataIndex: 'password', key: 'password', render: (p: string) => p ? <Tag>{p}</Tag> : <Tag color="green">无</Tag>, width: 100 },
     { title: '过期时间', dataIndex: 'expire_at', key: 'expire', width: 180,
       render: (t: string) => {

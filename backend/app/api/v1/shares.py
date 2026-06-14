@@ -79,6 +79,7 @@ def create_share(
         password=body.password.strip() if body.password else "",
         expire_at=expire_at,
         max_downloads=getattr(body, 'max_downloads', 0) or 0,
+        one_time=getattr(body, 'one_time', False) or False,
     )
     db.add(share)
     db.flush()
@@ -126,6 +127,18 @@ def access_share(
 
     # 增加浏览次数
     share.view_count += 1
+
+    # 一次性分享：访问后自动删除
+    if share.one_time:
+        db.delete(share)
+        db.commit()
+        data = {
+            "share": {**ShareOut.model_validate(share).model_dump(), "one_time": True, "max_downloads": 0, "downloads_remaining": 0},
+            "file": None,
+            "children": [],
+        }
+        return {"code": 0, "message": "这是一次性分享，链接已失效", "data": data}
+
     db.commit()
 
     # 如果是文件夹，返回其内容列表

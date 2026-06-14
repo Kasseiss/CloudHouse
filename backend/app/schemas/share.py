@@ -8,7 +8,8 @@ class ShareCreate(BaseModel):
     file_id: int
     password: str = ""
     expire_hours: int = 0  # 0 表示永不过期
-    max_downloads: int = 0  # 0 表示不限
+    max_downloads: int = 0
+    one_time: bool = False
 
 
 class ShareOut(BaseModel):
