@@ -10,7 +10,7 @@ import {
   FolderOutlined, FolderOpenOutlined, FileOutlined, UploadOutlined, FolderAddOutlined,
   DeleteOutlined, EditOutlined, DownloadOutlined, ShareAltOutlined,
   SearchOutlined, ReloadOutlined, AppstoreOutlined, UnorderedListOutlined,
-  CopyOutlined, EyeOutlined, KeyOutlined, StarOutlined, StarFilled, LinkOutlined,
+  CopyOutlined, EyeOutlined, KeyOutlined, StarOutlined, StarFilled, LinkOutlined, VerticalAlignTopOutlined,
 } from '@ant-design/icons'
 import {
   getFileList, uploadFiles, uploadFileWithChunks, mkdir, touchFile, renameFile, moveFiles, copyFile,
@@ -699,6 +699,13 @@ export default function HomePage() {
       )}
       </LayoutContent>
     </Layout>
+    <Button
+      shape="circle"
+      icon={<VerticalAlignTopOutlined />}
+      size="large"
+      style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 100, opacity: 0.7 }}
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    />
     <PreviewModal
       open={!!previewFile}
       file={previewFile}
