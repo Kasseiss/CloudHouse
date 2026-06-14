@@ -176,6 +176,10 @@ export default function HomePage() {
         e.preventDefault()
         const uploadBtn = document.querySelector('.ant-upload input[type="file"]') as HTMLInputElement
         if (uploadBtn) uploadBtn.click()
+      } else if (e.key === 'f' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        e.preventDefault()
+        const searchInput = document.querySelector('.ant-input-search input') as HTMLInputElement
+        if (searchInput) searchInput.focus()
       } else if (e.key === 'n' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
         e.preventDefault()
         handleMkdir()
