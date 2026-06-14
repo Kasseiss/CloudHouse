@@ -834,7 +834,14 @@ export default function HomePage() {
                 ].filter(Boolean)}
               >
                 <Card.Meta
-                  title={f.name.length > 20 ? f.name.slice(0, 18) + '...' : f.name}
+                  title={
+                    <Space size={4}>
+                      {f.name.length > 20 ? f.name.slice(0, 18) + '...' : f.name}
+                      {!f.is_dir && dayjs().diff(dayjs(f.created_at), 'hour') < 24 && (
+                        <Tag color="volcano" style={{ fontSize: 9, padding: '0 3px', lineHeight: '14px' }}>NEW</Tag>
+                      )}
+                    </Space>
+                  }
                   description={f.is_dir ? '文件夹' : formatBytes(f.file_size)}
                 />
               </Card>
