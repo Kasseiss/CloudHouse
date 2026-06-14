@@ -18,6 +18,7 @@ class User(Base):
     storage_quota = Column(Integer, default=1073741824)  # 1 GB in bytes
     storage_used = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
+    last_login_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     files = relationship("FileItem", back_populates="owner", lazy="dynamic")

@@ -9,6 +9,7 @@ interface User {
   storage_quota: number
   storage_used: number
   is_active: boolean
+  last_login_at?: string
   created_at: string
 }
 

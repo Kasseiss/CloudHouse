@@ -1,5 +1,7 @@
 """认证相关 API 路由：登录、注册、个人信息、修改密码。"""
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter
 
 from app.api.v1.dependencies import DbSession, CurrentUser
@@ -22,6 +24,9 @@ def login(db: DbSession, body: UserLogin) -> ApiResponse[dict]:
 
     if not user.is_active:
         raise UnauthorizedException("账号已被禁用，请联系管理员")
+
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
 
     token = create_access_token(data={"sub": str(user.id)})
     user_data = UserOut.model_validate(user)

@@ -82,6 +82,7 @@ function UserManagement() {
     { title: '状态', dataIndex: 'is_active', key: 'status', width: 80, render: (a: boolean) => a ? <Tag color="green">正常</Tag> : <Tag color="red">禁用</Tag> },
     { title: '已用/配额', key: 'storage', width: 160,
       render: (_, r) => `${(r.storage_used / 1073741824).toFixed(2)}GB / ${r.storage_quota ? (r.storage_quota / 1073741824).toFixed(2) + 'GB' : '不限'}` },
+    { title: '最后登录', dataIndex: 'last_login_at', key: 'login', render: (t: string) => t ? dayjs(t).format('MM-DD HH:mm') : '-', width: 120 },
     { title: '创建时间', dataIndex: 'created_at', key: 'time', render: (t: string) => dayjs(t).format('YYYY-MM-DD'), width: 120 },
     {
       title: '操作', key: 'action', width: 280,
