@@ -15,13 +15,26 @@ export const useTheme = () => useContext(ThemeContext)
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('theme')
-    return (saved === 'dark' || saved === 'light') ? saved : 'light'
+    if (saved === 'dark' || saved === 'light') return saved
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
   useEffect(() => {
     localStorage.setItem('theme', mode)
     document.documentElement.setAttribute('data-theme', mode)
   }, [mode])
+
+  // 监听系统主题变化
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setMode(e.matches ? 'dark' : 'light')
+      }
+    }
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const toggle = useCallback(() => {
     setMode(prev => prev === 'light' ? 'dark' : 'light')
