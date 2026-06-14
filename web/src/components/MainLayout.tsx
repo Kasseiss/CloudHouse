@@ -106,9 +106,14 @@ export default function MainLayout() {
       )}
       <Layout>
         <Header style={{ background: '#fff', padding: '0 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0' }}>
-          {isMobile && (
-            <Button type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuOpen(true)} />
-          )}
+          <Space>
+            {isMobile && (
+              <Button type="text" icon={<MenuOutlined />} onClick={() => setMobileMenuOpen(true)} />
+            )}
+            <Button type="link" onClick={() => navigate('/')} style={{ padding: 0, fontWeight: 'bold', fontSize: 14 }}>
+              ☁ CloudDisk
+            </Button>
+          </Space>
           <Space>
             <span style={{ color: '#666', fontSize: 13 }}>
               已用 {formatBytes(user?.storage_used || 0)}
