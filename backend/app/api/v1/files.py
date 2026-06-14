@@ -1601,6 +1601,44 @@ def delete_file_note(
     return ApiResponse(message="备注已删除")
 
 
+@router.get("/download-folder")
+def download_current_folder(
+    db: DbSession,
+    current_user: CurrentUser,
+    parent_id: int | None = Query(None),
+):
+    """将当前目录中的所有文件打包为 ZIP 下载。"""
+    import io as _io, zipfile as _zipfile
+    files = (
+        db.query(FileItem)
+        .filter(FileItem.user_id == current_user.id, FileItem.parent_id == parent_id,
+                FileItem.is_deleted == False, FileItem.is_dir == False)
+        .all()
+    )
+    if not files:
+        raise BadRequestException("当前目录没有可下载的文件")
+
+    buf = _io.BytesIO()
+    seen: dict[str, int] = {}
+    with _zipfile.ZipFile(buf, "w", _zipfile.ZIP_DEFLATED) as zf:
+        for item in files:
+            if not item.storage_path: continue
+            disk_path = Path(settings.UPLOAD_DIR) / item.storage_path
+            if not disk_path.exists(): continue
+            name = item.name
+            if name in seen:
+                seen[name] += 1
+                base, ext = os.path.splitext(name)
+                name = f"{base} ({seen[name]}){ext}"
+            else:
+                seen[name] = 0
+            zf.write(str(disk_path), arcname=name)
+
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=clouddisk_folder.zip"})
+
+
 @router.post("/search", response_model=ApiResponse[PaginatedData[FileOut]])
 def search_files(
     db: DbSession,

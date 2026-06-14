@@ -510,6 +510,17 @@ export default function HomePage() {
               上传文件（支持拖拽）
             </Button>
           </Upload.Dragger>
+          <Button icon={<DownloadOutlined />} onClick={() => {
+            const token = localStorage.getItem('token')
+            fetch(`/api/v1/files/download-folder?parent_id=${parentId ?? ''}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).then(r => r.blob()).then(blob => {
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url; a.download = 'clouddisk_folder.zip'; a.click()
+              URL.revokeObjectURL(url)
+            }).catch(() => message.error('下载失败'))
+          }}>打包下载</Button>
           <Button icon={<LinkOutlined />} onClick={handleImportUrl}>URL导入</Button>
           <Button icon={<FolderAddOutlined />} onClick={handleMkdir}>新建文件夹</Button>
           <Button icon={<FileOutlined />} onClick={() => {
