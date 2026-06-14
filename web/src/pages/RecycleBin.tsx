@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Table, Button, Space, Modal, message, Empty } from 'antd'
 import { DeleteOutlined, UndoOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
-import { getTrashList, restoreFile, permanentDelete, emptyTrash } from '../api/files'
+import { getTrashList, restoreFile, permanentDelete, emptyTrash, getTrashStats } from '../api/files'
 import dayjs from 'dayjs'
 
 interface FileItem {
@@ -88,11 +88,26 @@ export default function RecycleBinPage() {
     },
   ]
 
-  const handleEmptyTrash = () => {
+  const handleEmptyTrash = async () => {
+    let stats: any = null
+    try {
+      const res: any = await getTrashStats()
+      stats = res.data
+    } catch { /* ignore */ }
+
+    const formatSize = (bytes: number) => {
+      if (bytes < 1024) return bytes + ' B'
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
+      if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB'
+      return (bytes / 1073741824).toFixed(2) + ' GB'
+    }
+
     Modal.confirm({
       title: '确认清空回收站',
       icon: <ExclamationCircleOutlined />,
-      content: '将永久删除回收站中的所有文件，此操作不可恢复！',
+      content: stats
+        ? `将永久删除 ${stats.total_items} 个项目（${stats.file_count} 个文件，${stats.folder_count} 个文件夹），释放 ${formatSize(stats.total_size)} 空间。此操作不可恢复！`
+        : '将永久删除回收站中的所有文件，此操作不可恢复！',
       okType: 'danger',
       okText: '确认清空',
       onOk: async () => {

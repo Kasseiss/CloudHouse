@@ -200,6 +200,28 @@ def list_files(
     return ApiResponse(data=[FileOut.model_validate(f) for f in files])
 
 
+@router.get("/trash/stats", response_model=ApiResponse[dict])
+def get_trash_stats(
+    db: DbSession,
+    current_user: CurrentUser,
+):
+    """获取回收站统计信息（文件数和总大小）。"""
+    trash = (
+        db.query(FileItem)
+        .filter(FileItem.user_id == current_user.id, FileItem.is_deleted == True)
+        .all()
+    )
+    file_count = sum(1 for f in trash if not f.is_dir)
+    folder_count = sum(1 for f in trash if f.is_dir)
+    total_size = sum(f.file_size for f in trash if not f.is_dir)
+    return ApiResponse(data={
+        "file_count": file_count,
+        "folder_count": folder_count,
+        "total_items": file_count + folder_count,
+        "total_size": total_size,
+    })
+
+
 @router.get("/trash", response_model=ApiResponse[list[FileOut]])
 def list_trash(
     db: DbSession,

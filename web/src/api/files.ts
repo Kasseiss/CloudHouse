@@ -138,6 +138,8 @@ export const restoreFile = (id: number) => client.post(`/files/${id}/restore`)
 export const copyFile = (id: number, targetParentId?: number | null) =>
   client.post(`/files/${id}/copy`, null, { params: { target_parent_id: targetParentId } })
 
+export const getTrashStats = () => client.get('/files/trash/stats')
+
 export const emptyTrash = () => client.post('/files/trash/empty')
 
 export const permanentDelete = (id: number) => client.delete(`/files/${id}/permanent`)
