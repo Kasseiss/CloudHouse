@@ -13,6 +13,7 @@ class FileOut(BaseModel):
     parent_id: int | None
     user_id: int
     is_deleted: bool
+    download_count: int = 0
     created_at: datetime
     updated_at: datetime
 

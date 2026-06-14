@@ -1302,8 +1302,9 @@ def download_file(
     if not file_path.exists():
         raise NotFoundException("文件在服务器上不存在")
 
-    # 记录访问时间
+    # 记录访问时间和下载次数
     file_item.last_accessed_at = datetime.now(timezone.utc)
+    file_item.download_count += 1
     db.commit()
 
     encoded = quote(file_item.name)

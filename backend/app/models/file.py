@@ -23,6 +23,7 @@ class FileItem(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     last_accessed_at = Column(DateTime, nullable=True)
+    download_count = Column(Integer, default=0)
 
     owner = relationship("User", back_populates="files")
     shares = relationship("Share", back_populates="file", lazy="dynamic")
