@@ -393,10 +393,16 @@ export default function HomePage() {
 
   const getFileIcon = (file: FileItem) => {
     if (file.is_dir) return <FolderOutlined style={{ fontSize: 20, color: '#faad14' }} />
-    const ext = file.name.split('.').pop()?.toLowerCase()
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext || '')) return <FileOutlined style={{ fontSize: 20, color: '#52c41a' }} />
-    if (['mp4', 'avi', 'mkv', 'mov'].includes(ext || '')) return <FileOutlined style={{ fontSize: 20, color: '#722ed1' }} />
-    return <FileOutlined style={{ fontSize: 20, color: '#1890ff' }} />
+    const ext = file.name.split('.').pop()?.toLowerCase() || ''
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#52c41a' }} />
+    if (['mp4', 'avi', 'mkv', 'mov', 'webm'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#722ed1' }} />
+    if (['mp3', 'wav', 'flac', 'ogg', 'aac'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#eb2f96' }} />
+    if (['pdf'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#ff4d4f' }} />
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#fa8c16' }} />
+    if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#1890ff' }} />
+    if (['py', 'js', 'ts', 'jsx', 'tsx', 'java', 'go', 'rs', 'cpp', 'c', 'h'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#13c2c2' }} />
+    if (['md', 'txt', 'json', 'xml', 'yaml', 'yml', 'csv'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#8c8c8c' }} />
+    return <FileOutlined style={{ fontSize: 20, color: '#bfbfbf' }} />
   }
 
   const columns: ColumnsType<FileItem> = [
