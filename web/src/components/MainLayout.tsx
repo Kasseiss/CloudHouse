@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Layout, Menu, Button, Dropdown, Avatar, Space, Drawer } from 'antd'
+import { Layout, Menu, Button, Dropdown, Avatar, Space, Drawer, Badge } from 'antd'
 import {
   HomeOutlined, DeleteOutlined, ShareAltOutlined, SettingOutlined,
   UserOutlined, LogoutOutlined, ToolOutlined, BulbOutlined, BulbFilled, MenuOutlined,
@@ -18,6 +18,20 @@ export default function MainLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [trashCount, setTrashCount] = useState(0)
+
+  // 定期获取回收站数量
+  useEffect(() => {
+    const fetch = () => {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      window.fetch('/api/v1/files/trash/stats', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json()).then(r => setTrashCount(r.data?.total_items || 0)).catch(() => {})
+    }
+    fetch()
+    const timer = setInterval(fetch, 60000)  // 每60秒刷新
+    return () => clearInterval(timer)
+  }, [location.pathname])
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768)
@@ -27,7 +41,7 @@ export default function MainLayout() {
 
   const menuItems = [
     { key: '/', icon: <HomeOutlined />, label: '我的文件' },
-    { key: '/recycle', icon: <DeleteOutlined />, label: '回收站' },
+    { key: '/recycle', icon: <DeleteOutlined />, label: trashCount > 0 ? <Badge count={trashCount} size="small" offset={[8, 0]}>回收站</Badge> : '回收站' },
     { key: '/share', icon: <ShareAltOutlined />, label: '我的分享' },
     { key: '/settings', icon: <ToolOutlined />, label: '个人设置' },
     ...(user?.role === 'admin'
