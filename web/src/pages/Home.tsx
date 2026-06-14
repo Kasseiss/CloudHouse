@@ -192,6 +192,24 @@ export default function HomePage() {
   const handleUpload = async (fileList: any) => {
     const rawFiles: File[] = fileList.fileList?.map((f: any) => f.originFileObj) || [fileList.file]
     if (!rawFiles.length) return
+
+    // 预检查：单文件大小和总大小
+    const maxSize = (user?.storage_quota || Infinity)
+    if (maxSize > 0) {
+      const totalNew = rawFiles.reduce((s, f) => s + f.size, 0)
+      const remaining = maxSize - (user?.storage_used || 0)
+      if (totalNew > remaining) {
+        message.error(`存储空间不足！需要 ${formatBytes(totalNew)}，剩余 ${formatBytes(remaining)}`)
+        return
+      }
+    }
+    const maxSingle = 500 * 1024 * 1024  // 500MB from config
+    const oversized = rawFiles.find(f => f.size > maxSingle)
+    if (oversized) {
+      message.error(`文件 "${oversized.name}" 超过单文件上限 (${formatBytes(maxSingle)})`)
+      return
+    }
+
     setUploading(true)
     setUploadProgress(0)
     try {
