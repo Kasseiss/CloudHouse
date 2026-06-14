@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 from fastapi import APIRouter, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 
 from app.core.config import settings
 from app.core.exceptions import (
@@ -261,12 +261,22 @@ def get_directory_tree(
     folder_map: dict[int, dict] = {}
     roots: list[dict] = []
 
+    # 获取每个文件夹的子项数量
+    child_counts = dict(
+        db.query(FileItem.parent_id, FileItem.id)
+        .filter(FileItem.is_deleted == False, FileItem.parent_id.in_([f.id for f in folders]))
+        .group_by(FileItem.parent_id)
+        .with_entities(FileItem.parent_id, func.count(FileItem.id))
+        .all()
+    )
+
     for f in folders:
         folder_map[f.id] = {
             "id": f.id,
             "name": f.name,
             "parent_id": f.parent_id,
             "children": [],
+            "child_count": child_counts.get(f.id, 0),
         }
 
     for f in folders:

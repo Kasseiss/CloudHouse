@@ -9,6 +9,7 @@ interface DirNode {
   name: string
   parent_id: number | null
   children: DirNode[]
+  child_count?: number
 }
 
 interface Props {
@@ -30,7 +31,7 @@ export default function DirectoryTree({ onSelect, selectedId, refreshKey, onDrop
 
       const toTreeNode = (node: DirNode): TreeDataNode => ({
         key: node.id,
-        title: node.name,
+        title: node.child_count ? `${node.name} (${node.child_count})` : node.name,
         icon: ({ selected }: any) => selected ? <FolderOpenOutlined /> : <FolderOutlined />,
         children: node.children?.map(toTreeNode) || [],
       })
