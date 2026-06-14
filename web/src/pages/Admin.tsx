@@ -178,7 +178,10 @@ function SystemSettings() {
         <Form.Item label="开放注册">
           <Switch checked={config.allow_registration} onChange={(v) => setConfig({ ...config, allow_registration: v })} />
         </Form.Item>
-        <Button type="primary" onClick={handleSave} loading={loading}>保存配置</Button>
+        <Space>
+          <Button type="primary" onClick={handleSave} loading={loading}>保存配置</Button>
+          <Button icon={<DownloadOutlined />} href="/api/v1/admin/database/backup" target="_blank">下载数据库备份</Button>
+        </Space>
       </Form>
     </div>
   )

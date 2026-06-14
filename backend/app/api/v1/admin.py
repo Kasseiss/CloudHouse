@@ -1,6 +1,7 @@
 """管理后台 API 路由：用户管理、配额/状态管理、系统日志、系统配置。"""
 
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import APIRouter, Query
 from sqlalchemy import desc
@@ -402,6 +403,22 @@ def export_logs_csv(
         iter([output.getvalue()]),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=clouddisk_logs.csv"},
+    )
+
+
+@router.get("/database/backup")
+def backup_database(
+    _admin: AdminUser,
+):
+    """管理员下载数据库备份。"""
+    from fastapi.responses import FileResponse
+    db_path = Path(settings.DATABASE_URL.replace("sqlite:///", ""))
+    if not db_path.exists():
+        raise NotFoundException("数据库文件不存在")
+    return FileResponse(
+        str(db_path),
+        media_type="application/octet-stream",
+        filename=f"clouddisk_backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.db",
     )
 
 
