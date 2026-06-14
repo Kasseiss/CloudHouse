@@ -167,7 +167,12 @@ export default function HomePage() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.key === 'Enter' && selectedRowKeys.length === 1) {
+      if (e.key === 'Backspace' && parentId !== null) {
+        e.preventDefault()
+        // 返回上级目录
+        const parent = breadcrumb.length > 2 ? breadcrumb[breadcrumb.length - 2].id : null
+        navigateTo(parent)
+      } else if (e.key === 'Enter' && selectedRowKeys.length === 1) {
         const f = files.find(f => f.id === selectedRowKeys[0])
         if (f) { if (f.is_dir) navigateTo(f.id); else setPreviewFile(f) }
       } else if (e.key === 'Delete' && selectedRowKeys.length > 0) {
