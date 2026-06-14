@@ -571,6 +571,12 @@ export default function HomePage() {
             items: [
               { key: 'rename', icon: <EditOutlined />, label: '重命名', onClick: () => handleRename(record) },
               { key: 'copy', icon: <CopyOutlined />, label: '复制', onClick: () => handleCopy(record) },
+              { key: 'quick-share', icon: <ShareAltOutlined />, label: '快速分享', onClick: async () => {
+                const res: any = await createShare(record.id, '', 0, 0, false, false, '')
+                const url = `${window.location.origin}/s/${res.data.code}`
+                await navigator.clipboard.writeText(url)
+                message.success('分享链接已复制到剪贴板')
+              }},
               { key: 'delete', icon: <DeleteOutlined />, label: '删除', danger: true, onClick: () => handleDelete(record.id) },
             ],
           }}>
