@@ -371,6 +371,40 @@ def force_trash_cleanup(
     return ApiResponse(data={"cleaned": count, "freed_bytes": freed, "older_than_days": days})
 
 
+@router.get("/logs/export")
+def export_logs_csv(
+    db: DbSession,
+    _admin: AdminUser,
+):
+    """导出系统日志为 CSV 文件。"""
+    import csv as _csv
+    import io as _io
+
+    logs = (
+        db.query(SystemLog)
+        .order_by(SystemLog.created_at.desc())
+        .limit(10000)
+        .all()
+    )
+
+    output = _io.StringIO()
+    writer = _csv.writer(output)
+    writer.writerow(["ID", "用户ID", "操作", "详情", "IP地址", "时间"])
+    for log in logs:
+        writer.writerow([
+            log.id, log.user_id or "", log.action, log.detail,
+            log.ip_address, log.created_at.isoformat(),
+        ])
+
+    output.seek(0)
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=clouddisk_logs.csv"},
+    )
+
+
 @router.get("/dashboard", response_model=ApiResponse)
 def get_dashboard_stats(
     db: DbSession,

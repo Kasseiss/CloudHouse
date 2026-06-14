@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Tabs, Table, Button, Modal, Input, InputNumber, Switch, Space, message, Tag, Popconfirm, Form, Empty } from 'antd'
-import { UserAddOutlined, SettingOutlined, FileTextOutlined } from '@ant-design/icons'
+import { UserAddOutlined, SettingOutlined, FileTextOutlined, DownloadOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import {
   getUsers, createUser, updateUserQuota, updateUserStatus, deleteUser,
@@ -132,8 +132,17 @@ function SystemLogs() {
     { title: '时间', dataIndex: 'created_at', key: 'time', render: (t: string) => dayjs(t).format('YYYY-MM-DD HH:mm:ss'), width: 180 },
   ]
 
-  return <Table rowKey="id" columns={columns} dataSource={logs} loading={loading} pagination={{ pageSize: 20 }}
-    locale={{ emptyText: <Empty description="暂无日志" /> }} />
+  return (
+    <>
+      <div style={{ marginBottom: 16 }}>
+        <Button icon={<DownloadOutlined />} href="/api/v1/admin/logs/export" target="_blank">
+          导出 CSV
+        </Button>
+      </div>
+      <Table rowKey="id" columns={columns} dataSource={logs} loading={loading} pagination={{ pageSize: 20 }}
+        locale={{ emptyText: <Empty description="暂无日志" /> }} />
+    </>
+  )
 }
 
 function SystemSettings() {
