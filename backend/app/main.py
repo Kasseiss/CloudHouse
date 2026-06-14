@@ -37,6 +37,12 @@ def init_db() -> None:
     except (OSError, PermissionError):
         pass
 
+    # 清理超过 90 天的系统日志
+    from app.models.log import SystemLog
+    ninety_days_ago = datetime.now(timezone.utc) - timedelta(days=90)
+    old_logs = SessionLocal().query(SystemLog).filter(SystemLog.created_at <= ninety_days_ago).delete()
+    SessionLocal().commit()
+
     # 清理回收站中超过 30 天的文件
     thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
     old_trash = (
