@@ -62,7 +62,14 @@ export default function HomePage() {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>(() => {
+    const saved = localStorage.getItem('viewMode')
+    return (saved === 'list' || saved === 'grid') ? saved : 'list'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('viewMode', viewMode)
+  }, [viewMode])
   const [treeVersion, setTreeVersion] = useState(0)
   const refreshTree = () => setTreeVersion(v => v + 1)
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null)
