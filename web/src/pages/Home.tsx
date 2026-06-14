@@ -685,12 +685,12 @@ export default function HomePage() {
       {/* Quick type filter */}
       <Segmented
         options={[
-          { label: '全部', value: 'all' },
-          { label: '🖼 图片', value: 'image' },
-          { label: '🎬 视频', value: 'video' },
-          { label: '📄 文档', value: 'document' },
-          { label: '📦 压缩包', value: 'archive' },
-          { label: '⭐ 收藏', value: 'starred' },
+          { label: `全部 (${files.length})`, value: 'all' },
+          { label: `🖼 ${files.filter(f => f.mime_type.startsWith('image/')).length}`, value: 'image' },
+          { label: `🎬 ${files.filter(f => f.mime_type.startsWith('video/')).length}`, value: 'video' },
+          { label: `📄 ${files.filter(f => f.mime_type.includes('pdf') || f.mime_type.includes('text') || f.mime_type.includes('word') || f.mime_type.includes('excel')).length}`, value: 'document' },
+          { label: `📦 ${files.filter(f => f.mime_type.includes('zip') || f.mime_type.includes('rar') || f.mime_type.includes('7z')).length}`, value: 'archive' },
+          { label: `⭐ ${files.filter(f => isStarred(f.id)).length}`, value: 'starred' },
         ]}
         value={typeFilter}
         onChange={(v) => { setTypeFilter(v as string); setShowStarredOnly(v === 'starred') }}
