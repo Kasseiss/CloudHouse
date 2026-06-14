@@ -417,7 +417,8 @@ export default function HomePage() {
     },
     { title: '大小', dataIndex: 'file_size', key: 'size', sorter: (a: FileItem, b: FileItem) => a.file_size - b.file_size, render: (s: number, r: FileItem) => r.is_dir ? '-' : formatBytes(s), width: 120 },
     { title: '类型', dataIndex: 'mime_type', key: 'mime', render: (t: string, r: FileItem) => r.is_dir ? '文件夹' : t, width: 150 },
-    { title: '修改时间', dataIndex: 'updated_at', key: 'time', sorter: (a: FileItem, b: FileItem) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(), defaultSortOrder: 'descend', render: (t: string) => dayjs(t).format('YYYY-MM-DD HH:mm'), width: 180 },
+    { title: '修改时间', dataIndex: 'updated_at', key: 'time', sorter: (a: FileItem, b: FileItem) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(), defaultSortOrder: 'descend', render: (t: string) => dayjs(t).format('YYYY-MM-DD HH:mm'), width: 160 },
+    { title: '下载', dataIndex: 'download_count', key: 'dl', sorter: (a: any, b: any) => (a.download_count || 0) - (b.download_count || 0), render: (_: any, r: FileItem) => r.is_dir ? '-' : (r as any).download_count || 0, width: 70 },
     {
       title: '操作', key: 'action', width: 280,
       render: (_, record) => (
