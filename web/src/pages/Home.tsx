@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
-  Table, Button, Space, Breadcrumb, Upload, Modal, Input, Alert,
+  Table, Button, Space, Breadcrumb, Upload, Modal, Input, Alert, Skeleton,
   Dropdown, message, Tag, Tooltip, Progress, Empty, Card, Row, Col, Layout, Segmented,
 } from 'antd'
 import type { UploadProps } from 'antd'
@@ -854,7 +854,7 @@ export default function HomePage() {
         rowKey="id"
         columns={columns}
         dataSource={displayFiles}
-        loading={loading}
+        loading={loading ? { spinning: true, indicator: <Skeleton active paragraph={{ rows: 8 }} /> } : false}
         size={tableSize}
         sticky={{ offsetHeader: 0 }}
         rowClassName={(_, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
