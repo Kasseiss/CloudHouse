@@ -171,6 +171,10 @@ export default function HomePage() {
       } else if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault()
         setSelectedRowKeys(files.map(f => f.id))
+      } else if (e.key === 'u' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        const uploadBtn = document.querySelector('.ant-upload input[type="file"]') as HTMLInputElement
+        if (uploadBtn) uploadBtn.click()
       } else if (e.key === 'Escape') {
         setSelectedRowKeys([])
       }
