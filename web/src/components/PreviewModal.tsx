@@ -222,7 +222,14 @@ export default function PreviewModal({ open, file, onClose, siblingImages, onNav
       const next = currentIdx < siblings.length - 1 ? siblings[currentIdx + 1] : null
       return (
         <div style={{ textAlign: 'center', position: 'relative' }}>
-          <Image src={previewUrl} alt={file.name} style={{ maxHeight: '60vh' }} />
+          <Image src={previewUrl} alt={file.name} style={{ maxHeight: '55vh' }}
+            onLoad={(e: any) => {
+              const img = e.target as HTMLImageElement
+              const el = document.getElementById('img-dims')
+              if (el) el.textContent = `${img.naturalWidth} × ${img.naturalHeight} px`
+            }}
+          />
+          <div id="img-dims" style={{ color: '#999', fontSize: 12, marginTop: 4 }} />
           {(prev || next) && (
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', gap: 16, alignItems: 'center' }}>
               <Button disabled={!prev} onClick={() => prev && onNavigate?.(prev.id)}>← 上一张</Button>
