@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  cloud-disk:
+    build: .
+    container_name: cloud-disk
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - SECRET_KEY=change-me-in-production
+      - ALLOW_REGISTRATION=true
+    restart: unless-stopped
