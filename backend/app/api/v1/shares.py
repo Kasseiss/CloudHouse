@@ -147,8 +147,14 @@ def access_share(
     if share.file is None or share.file.is_deleted:
         raise NotFoundException("原文件已被删除")
 
-    # 增加浏览次数
+    # 增加浏览次数，通知创建者
     share.view_count += 1
+    log = SystemLog(
+        user_id=share.user_id,
+        action="share_access",
+        detail=f"有人访问了你的分享: {share.file.name} (第 {share.view_count} 次)",
+    )
+    db.add(log)
 
     # 一次性分享：访问后自动删除
     if share.one_time:
