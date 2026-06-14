@@ -65,6 +65,64 @@ function renderMarkdown(md: string): string {
   return html
 }
 
+function CsvPreview({ url }: { url: string }) {
+  const [rows, setRows] = useState<string[][]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+      .then(r => r.text())
+      .then(text => {
+        const lines = text.split('\n').filter(Boolean)
+        setRows(lines.slice(0, 200).map(line => {
+          const cols: string[] = []
+          let current = ''
+          let inQuotes = false
+          for (const ch of line) {
+            if (ch === '"') { inQuotes = !inQuotes }
+            else if (ch === ',' && !inQuotes) { cols.push(current); current = '' }
+            else { current += ch }
+          }
+          cols.push(current)
+          return cols
+        }))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [url])
+
+  if (loading) return <Spin style={{ display: 'block', padding: 40 }} />
+  if (rows.length === 0) return <Typography.Text type="secondary">空文件</Typography.Text>
+
+  const headers = rows[0]
+  const data = rows.slice(1)
+  return (
+    <div style={{ overflow: 'auto', maxHeight: '60vh', fontSize: 12 }}>
+      <FileStats text={rows.map(r => r.join(',')).join('\n')} />
+      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+        <thead>
+          <tr style={{ background: '#fafafa' }}>
+            {headers.map((h, i) => (
+              <th key={i} style={{ border: '1px solid #e8e8e8', padding: '6px 12px', textAlign: 'left', fontWeight: 600, position: 'sticky', top: 0, background: '#fafafa' }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, ri) => (
+            <tr key={ri} style={{ background: ri % 2 === 0 ? '#fff' : '#fafafa' }}>
+              {headers.map((_, ci) => (
+                <td key={ci} style={{ border: '1px solid #e8e8e8', padding: '4px 12px', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row[ci] || ''}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {rows.length > 200 && <div style={{ padding: 8, color: '#999', textAlign: 'center' }}>仅显示前 200 行</div>}
+    </div>
+  )
+}
+
 function MarkdownPreview({ url }: { url: string }) {
   const [html, setHtml] = useState('')
   const [mdText, setMdText] = useState('')
@@ -199,6 +257,9 @@ export default function PreviewModal({ open, file, onClose, siblingImages, onNav
       return (
         <iframe src={previewUrl} style={{ width: '100%', height: '60vh', border: '1px solid #f0f0f0' }} title={file.name} />
       )
+    }
+    if (file.name.endsWith('.csv')) {
+      return <CsvPreview url={previewUrl} />
     }
     if (file.name.endsWith('.md') || file.name.endsWith('.markdown') || mime === 'text/markdown') {
       return <MarkdownPreview url={previewUrl} />
