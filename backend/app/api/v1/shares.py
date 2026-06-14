@@ -77,6 +77,7 @@ def create_share(
         code=code,
         password=body.password.strip() if body.password else "",
         expire_at=expire_at,
+        max_downloads=getattr(body, 'max_downloads', 0) or 0,
     )
     db.add(share)
     db.flush()
@@ -151,7 +152,11 @@ def access_share(
         ]
 
     data = {
-        "share": ShareOut.model_validate(share),
+        "share": {
+            **ShareOut.model_validate(share).model_dump(),
+            "max_downloads": share.max_downloads,
+            "downloads_remaining": share.max_downloads - share.view_count if share.max_downloads > 0 else -1,
+        },
         "file": {
             "id": share.file.id,
             "name": share.file.name,
@@ -208,6 +213,10 @@ def download_shared_file(
     file_path = Path(settings.UPLOAD_DIR) / target_file.storage_path
     if not file_path.exists():
         raise NotFoundException("文件在服务器上不存在")
+
+    # 下载次数限制检查
+    if share.max_downloads > 0 and share.view_count >= share.max_downloads:
+        raise BadRequestException("该分享已达到下载次数上限")
 
     share.view_count += 1
     db.commit()

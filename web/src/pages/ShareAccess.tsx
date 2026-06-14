@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Card, Button, Input, Typography, Space, message, Descriptions, Result, List } from 'antd'
+import { Card, Button, Input, Typography, Space, message, Descriptions, Result, List, Tag } from 'antd'
 import { DownloadOutlined, LockOutlined, FileOutlined, FolderOutlined } from '@ant-design/icons'
 import { getShareInfo } from '../api/shares'
 import dayjs from 'dayjs'
@@ -87,6 +87,11 @@ export default function ShareAccessPage() {
           </Descriptions.Item>
           <Descriptions.Item label="分享时间">{dayjs(share?.created_at).format('YYYY-MM-DD HH:mm')}</Descriptions.Item>
           <Descriptions.Item label="有效期">{share?.expire_at ? dayjs(share.expire_at).format('YYYY-MM-DD HH:mm') : '永久有效'}</Descriptions.Item>
+          {share?.max_downloads > 0 && (
+            <Descriptions.Item label="下载限制">
+              {share.downloads_remaining > 0 ? `剩余 ${share.downloads_remaining} / ${share.max_downloads} 次` : <Tag color="red">已达上限</Tag>}
+            </Descriptions.Item>
+          )}
         </Descriptions>
 
         {file?.is_dir && children && children.length > 0 && (

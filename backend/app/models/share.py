@@ -17,6 +17,7 @@ class Share(Base):
     password = Column(String(16), default="")  # 提取码，为空则不校验
     expire_at = Column(DateTime, nullable=True)  # 过期时间，为空则永不过期
     view_count = Column(Integer, default=0)
+    max_downloads = Column(Integer, default=0)  # 0 = 无限
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     file = relationship("FileItem", back_populates="shares")

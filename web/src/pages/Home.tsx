@@ -251,13 +251,15 @@ export default function HomePage() {
       content: (
         <div>
           <Input placeholder="提取码（可选）" id="share-pwd" style={{ marginBottom: 8 }} />
-          <Input placeholder="有效期（小时，0=永久）" id="share-expire" defaultValue="0" />
+          <Input placeholder="有效期（小时，0=永久）" id="share-expire" defaultValue="0" style={{ marginBottom: 8 }} />
+          <Input placeholder="下载次数限制（0=不限）" id="share-max-dl" defaultValue="0" />
         </div>
       ),
       onOk: async () => {
         const pwd = (document.getElementById('share-pwd') as HTMLInputElement)?.value || ''
         const expire = Number((document.getElementById('share-expire') as HTMLInputElement)?.value) || 0
-        const res: any = await createShare(file.id, pwd, expire)
+        const maxDl = Number((document.getElementById('share-max-dl') as HTMLInputElement)?.value) || 0
+        const res: any = await createShare(file.id, pwd, expire, maxDl)
         const shareUrl = `${window.location.origin}/s/${res.data.code}`
         Modal.success({
           title: '分享链接已生成',
