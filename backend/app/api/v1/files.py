@@ -138,6 +138,16 @@ _MIME_MAP: dict[str, str] = {
     ".html": "text/html",
     ".css": "text/css",
     ".js": "application/javascript",
+    ".md": "text/markdown",
+    ".markdown": "text/markdown",
+    ".py": "text/x-python",
+    ".java": "text/x-java",
+    ".ts": "application/typescript",
+    ".tsx": "application/typescript",
+    ".yaml": "text/yaml",
+    ".yml": "text/yaml",
+    ".sh": "text/x-shellscript",
+    ".sql": "text/x-sql",
 }
 
 
