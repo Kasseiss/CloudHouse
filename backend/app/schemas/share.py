@@ -11,6 +11,7 @@ class ShareCreate(BaseModel):
     max_downloads: int = 0
     one_time: bool = False
     require_login: bool = False
+    custom_code: str = ""
 
 
 class ShareOut(BaseModel):

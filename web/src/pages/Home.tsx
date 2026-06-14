@@ -297,6 +297,7 @@ export default function HomePage() {
       title: '创建分享链接',
       content: (
         <div>
+          <Input placeholder="自定义分享码（可选，4位+字母数字）" id="share-code" style={{ marginBottom: 8 }} />
           <Input placeholder="提取码（可选）" id="share-pwd" style={{ marginBottom: 8 }} />
           <Input placeholder="有效期（小时，0=永久）" id="share-expire" defaultValue="0" style={{ marginBottom: 8 }} />
           <Input placeholder="下载次数限制（0=不限）" id="share-max-dl" defaultValue="0" style={{ marginBottom: 8 }} />
@@ -305,12 +306,13 @@ export default function HomePage() {
         </div>
       ),
       onOk: async () => {
+        const code = (document.getElementById('share-code') as HTMLInputElement)?.value || ''
         const pwd = (document.getElementById('share-pwd') as HTMLInputElement)?.value || ''
         const expire = Number((document.getElementById('share-expire') as HTMLInputElement)?.value) || 0
         const maxDl = Number((document.getElementById('share-max-dl') as HTMLInputElement)?.value) || 0
         const oneTime = (document.getElementById('share-onetime') as HTMLInputElement)?.checked || false
         const requireLogin = (document.getElementById('share-login') as HTMLInputElement)?.checked || false
-        const res: any = await createShare(file.id, pwd, expire, maxDl, oneTime, requireLogin)
+        const res: any = await createShare(file.id, pwd, expire, maxDl, oneTime, requireLogin, code)
         const shareUrl = `${window.location.origin}/s/${res.data.code}`
         Modal.success({
           title: '分享链接已生成',

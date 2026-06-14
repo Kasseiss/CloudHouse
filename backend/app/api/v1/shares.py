@@ -61,15 +61,22 @@ def create_share(
         if expire_at < datetime.now(timezone.utc):
             raise BadRequestException("过期时间不能是过去的时间")
 
-    # 3. 生成唯一分享码
-    for _ in range(10):  # 最多重试 10 次避免冲突
-        code = _generate_share_code()
-        existing = db.query(Share).filter(Share.code == code).first()
-        if existing is None:
-            break
+    # 3. 生成或使用自定义分享码
+    custom_code = getattr(body, 'custom_code', '').strip()
+    if custom_code:
+        if not custom_code.isalnum() or len(custom_code) < 4:
+            raise BadRequestException("自定义分享码需至少4位字母数字组合")
+        existing = db.query(Share).filter(Share.code == custom_code).first()
+        if existing:
+            raise BadRequestException("该分享码已被使用，请换一个")
+        code = custom_code
     else:
-        # 如果冲突太多，换更长码重试
-        code = _generate_share_code(12)
+        for _ in range(10):
+            code = _generate_share_code()
+            if db.query(Share).filter(Share.code == code).first() is None:
+                break
+        else:
+            code = _generate_share_code(12)
 
     # 4. 写入数据库
     share = Share(
