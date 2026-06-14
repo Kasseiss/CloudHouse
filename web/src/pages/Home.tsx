@@ -179,6 +179,14 @@ export default function HomePage() {
         e.preventDefault()
         const uploadBtn = document.querySelector('.ant-upload input[type="file"]') as HTMLInputElement
         if (uploadBtn) uploadBtn.click()
+      } else if (e.key === 's' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        e.preventDefault()
+        if (selectedRowKeys.length === 1) {
+          const file = files.find(f => f.id === selectedRowKeys[0])
+          if (file && !file.is_dir) handleDownload(file)
+        } else if (selectedRowKeys.length > 1) {
+          batchDownload(selectedRowKeys).then(() => message.success('打包下载已开始'))
+        }
       } else if (e.key === 'f' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
         e.preventDefault()
         const searchInput = document.querySelector('.ant-input-search input') as HTMLInputElement
