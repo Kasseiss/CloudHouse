@@ -18,6 +18,7 @@ import {
 } from '../api/files'
 import { useAuth } from '../store/auth'
 import { useStarred } from '../store/starred'
+import { useFolderColors } from '../store/foldercolors'
 import { createShare } from '../api/shares'
 import { changePassword } from '../api/auth'
 import type { MenuProps } from 'antd'
@@ -502,8 +503,20 @@ export default function HomePage() {
     finally { setLoading(false) }
   }
 
+  const { getColor, COLORS, setColor } = useFolderColors()
+
   const getFileIcon = (file: FileItem) => {
-    if (file.is_dir) return <FolderOutlined style={{ fontSize: 20, color: '#faad14' }} />
+    if (file.is_dir) {
+      const folderColor = getColor(file.id) || '#faad14'
+      return <FolderOutlined style={{ fontSize: 20, color: folderColor, cursor: 'pointer' }}
+        onClick={(e) => {
+          e.stopPropagation()
+          const next = COLORS[(COLORS.indexOf(folderColor) + 1) % COLORS.length]
+          setColor(file.id, folderColor === '#faad14' ? next : next)
+        }}
+        title="点击切换颜色"
+      />
+    }
     const ext = file.name.split('.').pop()?.toLowerCase() || ''
     if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#52c41a' }} />
     if (['mp4', 'avi', 'mkv', 'mov', 'webm'].includes(ext)) return <FileOutlined style={{ fontSize: 20, color: '#722ed1' }} />
