@@ -441,8 +441,20 @@ async def upload_file(
     # 配额检查
     _check_quota(current_user, file_size)
 
-    # 同名检查
-    _check_name_conflict(db, filename, parent_id, current_user.id)
+    # 同名检查：自动重命名
+    base, ext = os.path.splitext(filename)
+    counter = 1
+    while True:
+        conflict = (
+            db.query(FileItem)
+            .filter(FileItem.name == filename, FileItem.parent_id == parent_id,
+                    FileItem.user_id == current_user.id, FileItem.is_deleted == False)
+            .first()
+        )
+        if not conflict:
+            break
+        filename = f"{base} ({counter}){ext}"
+        counter += 1
 
     # 生成唯一存储路径： {user_id}/{uuid}_{原始文件名}
     unique_name = f"{uuid.uuid4().hex}_{filename}"
