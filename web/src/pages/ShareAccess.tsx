@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Card, Button, Input, Typography, Space, message, Descriptions, Result } from 'antd'
-import { DownloadOutlined, LockOutlined } from '@ant-design/icons'
+import { Card, Button, Input, Typography, Space, message, Descriptions, Result, List } from 'antd'
+import { DownloadOutlined, LockOutlined, FileOutlined, FolderOutlined } from '@ant-design/icons'
 import { getShareInfo } from '../api/shares'
 import dayjs from 'dayjs'
 
@@ -69,23 +69,60 @@ export default function ShareAccessPage() {
 
   if (!shareData) return null
 
-  const { file, share } = shareData
+  const { file, share, children } = shareData
+
+  const childDownloadUrl = (childId: number) => {
+    const pwd = share?.password || ''
+    return `/api/v1/shares/${code}/download?password=${encodeURIComponent(pwd)}&child_id=${childId}`
+  }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
-      <Card style={{ width: 500 }}>
-        <Title level={4}>📁 分享文件</Title>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5', padding: 24 }}>
+      <Card style={{ width: file?.is_dir ? 600 : 500 }}>
+        <Title level={4}>{file?.is_dir ? '📁' : '📄'} {file?.is_dir ? '分享文件夹' : '分享文件'}</Title>
         <Descriptions column={1} bordered size="small">
-          <Descriptions.Item label="文件名">{file?.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label="文件大小">{file?.file_size ? `${(file.file_size / 1024 / 1024).toFixed(2)} MB` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="名称">{file?.name || '-'}</Descriptions.Item>
+          <Descriptions.Item label={file?.is_dir ? '文件夹' : '文件大小'}>
+            {file?.is_dir ? `${children?.length || 0} 个项目` : file?.file_size ? `${(file.file_size / 1024 / 1024).toFixed(2)} MB` : '-'}
+          </Descriptions.Item>
           <Descriptions.Item label="分享时间">{dayjs(share?.created_at).format('YYYY-MM-DD HH:mm')}</Descriptions.Item>
           <Descriptions.Item label="有效期">{share?.expire_at ? dayjs(share.expire_at).format('YYYY-MM-DD HH:mm') : '永久有效'}</Descriptions.Item>
         </Descriptions>
-        <div style={{ marginTop: 24, textAlign: 'center' }}>
-          <Button type="primary" size="large" icon={<DownloadOutlined />} onClick={handleDownload} block>
-            下载文件
-          </Button>
-        </div>
+
+        {file?.is_dir && children && children.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <Title level={5}>文件夹内容</Title>
+            <List
+              size="small"
+              dataSource={children}
+              renderItem={(item: any) => (
+                <List.Item
+                  actions={[
+                    !item.is_dir && (
+                      <a key="dl" href={childDownloadUrl(item.id)} target="_blank">
+                        <Button size="small" icon={<DownloadOutlined />}>下载</Button>
+                      </a>
+                    ),
+                  ]}
+                >
+                  <Space>
+                    {item.is_dir ? <FolderOutlined style={{ color: '#faad14' }} /> : <FileOutlined />}
+                    <span>{item.name}</span>
+                    {!item.is_dir && <span style={{ color: '#999', fontSize: 12 }}>{item.file_size > 1024 ? `${(item.file_size / 1024).toFixed(1)} KB` : `${item.file_size} B`}</span>}
+                  </Space>
+                </List.Item>
+              )}
+            />
+          </div>
+        )}
+
+        {!file?.is_dir && (
+          <div style={{ marginTop: 24, textAlign: 'center' }}>
+            <Button type="primary" size="large" icon={<DownloadOutlined />} onClick={handleDownload} block>
+              下载文件
+            </Button>
+          </div>
+        )}
       </Card>
     </div>
   )

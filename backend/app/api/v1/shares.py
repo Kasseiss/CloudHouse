@@ -126,6 +126,30 @@ def access_share(
     share.view_count += 1
     db.commit()
 
+    # 如果是文件夹，返回其内容列表
+    children = []
+    if share.file.is_dir:
+        child_items = (
+            db.query(FileItem)
+            .filter(
+                FileItem.parent_id == share.file.id,
+                FileItem.is_deleted == False,
+            )
+            .order_by(FileItem.is_dir.desc(), FileItem.name.asc())
+            .all()
+        )
+        children = [
+            {
+                "id": c.id,
+                "name": c.name,
+                "file_size": c.file_size,
+                "mime_type": c.mime_type,
+                "is_dir": c.is_dir,
+                "created_at": c.created_at.isoformat(),
+            }
+            for c in child_items
+        ]
+
     data = {
         "share": ShareOut.model_validate(share),
         "file": {
@@ -136,6 +160,7 @@ def access_share(
             "is_dir": share.file.is_dir,
             "created_at": share.file.created_at.isoformat(),
         },
+        "children": children,
     }
     return {"code": 0, "message": "success", "data": data}
 
@@ -149,8 +174,9 @@ def download_shared_file(
     code: str,
     db: DbSession,
     password: str = Query(default="", description="提取码"),
+    child_id: int | None = Query(None, description="分享文件夹时，指定下载的子文件ID"),
 ):
-    """通过分享码公开下载文件（无需登录）。"""
+    """通过分享码公开下载文件（无需登录）。支持分享文件夹内的子文件下载。"""
     share = db.query(Share).options(joinedload(Share.file)).filter(Share.code == code).first()
     if share is None:
         raise NotFoundException("分享不存在或已被删除")
@@ -164,21 +190,33 @@ def download_shared_file(
     if share.file is None or share.file.is_deleted:
         raise NotFoundException("原文件已被删除")
 
-    if share.file.is_dir:
-        raise BadRequestException("文件夹请通过分享页面浏览和下载，不支持直接打包下载")
+    # 确定要下载的文件
+    target_file = share.file
+    if child_id is not None:
+        child = db.get(FileItem, child_id)
+        if child is None or child.is_deleted or child.is_dir:
+            raise NotFoundException("文件不存在")
+        # 验证子文件确实在分享的文件夹内
+        if share.file.is_dir and child.parent_id == share.file.id:
+            target_file = child
+        else:
+            raise ForbiddenException("无权访问该文件")
 
-    file_path = Path(settings.UPLOAD_DIR) / share.file.storage_path
+    if target_file.is_dir:
+        raise BadRequestException("不能下载文件夹")
+
+    file_path = Path(settings.UPLOAD_DIR) / target_file.storage_path
     if not file_path.exists():
         raise NotFoundException("文件在服务器上不存在")
 
     share.view_count += 1
     db.commit()
 
-    encoded = quote(share.file.name)
+    encoded = quote(target_file.name)
     return FileResponse(
         path=str(file_path),
-        filename=share.file.name,
-        media_type=share.file.mime_type,
+        filename=target_file.name,
+        media_type=target_file.mime_type,
         headers={
             "Content-Disposition": f"attachment; filename*=UTF-8''{encoded}",
         },
