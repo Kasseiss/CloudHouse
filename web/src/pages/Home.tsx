@@ -552,6 +552,9 @@ export default function HomePage() {
           </span>
           {getFileIcon(record)}
           <span style={{ color: record.is_dir ? '#1890ff' : 'inherit' }}>{record.name}</span>
+          {!record.is_dir && dayjs().diff(dayjs(record.created_at), 'hour') < 24 && (
+            <Tag color="volcano" style={{ fontSize: 10, padding: '0 4px', lineHeight: '16px' }}>NEW</Tag>
+          )}
         </Space>
       ),
     },
