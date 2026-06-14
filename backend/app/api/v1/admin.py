@@ -426,6 +426,39 @@ def get_dashboard_stats(
     seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
     new_users_7d = db.query(User).filter(User.created_at >= seven_days_ago).count()
 
+    # Top 10 存储用户
+    top_users = (
+        db.query(User)
+        .order_by(User.storage_used.desc())
+        .limit(10)
+        .all()
+    )
+    top_users_data = [
+        {"id": u.id, "username": u.username, "storage_used": u.storage_used, "storage_quota": u.storage_quota}
+        for u in top_users
+    ]
+
+    # 文件类型分布
+    file_types = (
+        db.query(FileItem.mime_type, FileItem.file_size)
+        .filter(FileItem.is_dir == False, FileItem.is_deleted == False)
+        .all()
+    )
+    type_stats: dict[str, int] = {}
+    for mime, size in file_types:
+        cat = "other"
+        if mime.startswith("image/"): cat = "image"
+        elif mime.startswith("video/"): cat = "video"
+        elif mime.startswith("audio/"): cat = "audio"
+        elif "pdf" in mime: cat = "pdf"
+        elif "text" in mime or "json" in mime or "xml" in mime or "javascript" in mime or "html" in mime or "css" in mime:
+            cat = "text"
+        elif "word" in mime or "excel" in mime or "powerpoint" in mime or "msword" in mime:
+            cat = "document"
+        elif "zip" in mime or "rar" in mime or "7z" in mime or "tar" in mime or "gzip" in mime:
+            cat = "archive"
+        type_stats[cat] = type_stats.get(cat, 0) + size
+
     return ApiResponse(
         data={
             "total_users": total_users,
@@ -436,6 +469,11 @@ def get_dashboard_stats(
             "storage_used_bytes": storage_sum,
             "storage_used_display": _format_bytes(storage_sum),
             "new_users_last_7_days": new_users_7d,
+            "top_storage_users": top_users_data,
+            "file_type_stats": [
+                {"category": k, "size": v, "display": _format_bytes(v)}
+                for k, v in sorted(type_stats.items(), key=lambda x: x[1], reverse=True)
+            ],
         }
     )
 

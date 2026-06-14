@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Tabs, Table, Button, Modal, Input, InputNumber, Switch, Space, message, Tag, Popconfirm, Form, Empty } from 'antd'
-import { UserAddOutlined, SettingOutlined, FileTextOutlined, DownloadOutlined } from '@ant-design/icons'
+import { Tabs, Table, Button, Modal, Input, InputNumber, Switch, Space, message, Tag, Popconfirm, Form, Empty, Card, Statistic, Row, Col, Progress } from 'antd'
+import { UserAddOutlined, SettingOutlined, FileTextOutlined, DownloadOutlined, DashboardOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import {
   getUsers, createUser, updateUserQuota, updateUserStatus, deleteUser,
@@ -184,10 +184,61 @@ function SystemSettings() {
   )
 }
 
+function Dashboard() {
+  const [stats, setStats] = useState<any>({})
+  useEffect(() => {
+    import('../api/admin').then(api => {
+      api.getSystemConfig().then((res: any) => {})  // trigger auth
+    })
+    const token = localStorage.getItem('token')
+    fetch('/api/v1/admin/dashboard', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json()).then(r => setStats(r.data || {})).catch(() => {})
+  }, [])
+
+  return (
+    <div>
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col span={6}><Card><Statistic title="总用户" value={stats.total_users || 0} /></Card></Col>
+        <Col span={6}><Card><Statistic title="活跃用户" value={stats.active_users || 0} suffix={`/ ${stats.total_users || 0}`} /></Card></Col>
+        <Col span={6}><Card><Statistic title="文件总数" value={stats.total_files || 0} /></Card></Col>
+        <Col span={6}><Card><Statistic title="分享总数" value={stats.total_shares || 0} /></Card></Col>
+      </Row>
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col span={6}><Card><Statistic title="总存储用量" value={stats.storage_used_display || '0 B'} /></Card></Col>
+        <Col span={6}><Card><Statistic title="禁用用户" value={stats.disabled_users || 0} /></Card></Col>
+        <Col span={6}><Card><Statistic title="近7天新增" value={stats.new_users_last_7_days || 0} /></Card></Col>
+      </Row>
+      <Card title="文件类型分布" size="small" style={{ marginBottom: 16 }}>
+        {(stats.file_type_stats || []).map((item: any) => (
+          <div key={item.category} style={{ marginBottom: 8 }}>
+            <Tag>{item.category}</Tag>
+            <Progress percent={Math.round(item.size / (stats.storage_used_bytes || 1) * 100)} size="small" format={() => item.display} />
+          </div>
+        ))}
+      </Card>
+      <Card title="存储用量 Top 10" size="small">
+        <Table
+          rowKey="id"
+          dataSource={stats.top_storage_users || []}
+          columns={[
+            { title: '用户', dataIndex: 'username' },
+            { title: '已用', render: (_: any, r: any) => r.storage_used > 1073741824 ? `${(r.storage_used / 1073741824).toFixed(2)} GB` : `${(r.storage_used / 1048576).toFixed(1)} MB` },
+            { title: '配额', render: (_: any, r: any) => r.storage_quota === 0 ? '不限' : `${(r.storage_quota / 1073741824).toFixed(1)} GB` },
+            { title: '使用率', render: (_: any, r: any) => r.storage_quota === 0 ? '-' : `${((r.storage_used / r.storage_quota) * 100).toFixed(1)}%` },
+          ]}
+          pagination={false}
+          size="small"
+        />
+      </Card>
+    </div>
+  )
+}
+
 export default function AdminPage() {
   return (
     <Tabs
       items={[
+        { key: 'dashboard', label: <span><DashboardOutlined /> 仪表盘</span>, children: <Dashboard /> },
         { key: 'users', label: <span><UserAddOutlined /> 用户管理</span>, children: <UserManagement /> },
         { key: 'logs', label: <span><FileTextOutlined /> 操作日志</span>, children: <SystemLogs /> },
         { key: 'settings', label: <span><SettingOutlined /> 系统配置</span>, children: <SystemSettings /> },
