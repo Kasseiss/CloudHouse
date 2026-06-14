@@ -175,6 +175,23 @@ export default function HomePage() {
         e.preventDefault()
         const uploadBtn = document.querySelector('.ant-upload input[type="file"]') as HTMLInputElement
         if (uploadBtn) uploadBtn.click()
+      } else if (e.key === '?') {
+        e.preventDefault()
+        Modal.info({
+          title: '键盘快捷键',
+          width: 400,
+          content: (
+            <div style={{ fontSize: 13, lineHeight: 2 }}>
+              <div><kbd>Delete</kbd> — 删除选中文件</div>
+              <div><kbd>F2</kbd> — 重命名单个选中文件</div>
+              <div><kbd>Ctrl+A</kbd> — 全选</div>
+              <div><kbd>Ctrl+U</kbd> — 打开上传对话框</div>
+              <div><kbd>Ctrl+V</kbd> — 粘贴剪贴板图片上传</div>
+              <div><kbd>Escape</kbd> — 取消选择</div>
+              <div><kbd>?</kbd> — 显示此帮助</div>
+            </div>
+          ),
+        })
       } else if (e.key === 'Escape') {
         setSelectedRowKeys([])
       }
