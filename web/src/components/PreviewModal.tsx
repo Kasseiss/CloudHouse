@@ -67,22 +67,37 @@ function renderMarkdown(md: string): string {
 
 function MarkdownPreview({ url }: { url: string }) {
   const [html, setHtml] = useState('')
+  const [mdText, setMdText] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setLoading(true)
     fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
       .then(r => r.text())
-      .then(md => { setHtml(renderMarkdown(md)); setLoading(false) })
+      .then(md => { setMdText(md); setHtml(renderMarkdown(md)); setLoading(false) })
       .catch(() => setLoading(false))
   }, [url])
 
   if (loading) return <Spin style={{ display: 'block', padding: 40 }} />
   return (
-    <div
-      style={{ padding: 16, lineHeight: 1.8, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', maxHeight: '60vh', overflow: 'auto' }}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <div>
+      <FileStats text={mdText} />
+      <div
+        style={{ padding: 16, lineHeight: 1.8, fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', maxHeight: '55vh', overflow: 'auto' }}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
+  )
+}
+
+function FileStats({ text }: { text: string }) {
+  const lines = text.split('\n').length
+  const words = text.split(/\s+/).filter(Boolean).length
+  const chars = text.length
+  return (
+    <div style={{ marginBottom: 8, fontSize: 11, color: '#999', display: 'flex', gap: 16 }}>
+      <span>{lines} 行</span><span>{words} 词</span><span>{chars} 字符</span>
+    </div>
   )
 }
 
@@ -106,10 +121,12 @@ function CodePreview({ url }: { url: string }) {
   const pad = String(lines.length).length
 
   return (
-    <div style={{
-      background: '#1e1e1e', borderRadius: 8, overflow: 'auto', maxHeight: '60vh',
-      fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace", fontSize: 12, lineHeight: 1.7,
-    }}>
+    <div>
+      <FileStats text={code} />
+      <div style={{
+        background: '#1e1e1e', borderRadius: 8, overflow: 'auto', maxHeight: '55vh',
+        fontFamily: "'Consolas', 'Monaco', 'Courier New', monospace", fontSize: 12, lineHeight: 1.7,
+      }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <tbody>
           {lines.map((line, i) => (
@@ -127,6 +144,7 @@ function CodePreview({ url }: { url: string }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }
