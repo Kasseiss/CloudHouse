@@ -10,6 +10,7 @@ class ShareCreate(BaseModel):
     expire_hours: int = 0  # 0 表示永不过期
     max_downloads: int = 0
     one_time: bool = False
+    require_login: bool = False
 
 
 class ShareOut(BaseModel):

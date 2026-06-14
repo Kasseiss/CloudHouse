@@ -18,7 +18,8 @@ class Share(Base):
     expire_at = Column(DateTime, nullable=True)  # 过期时间，为空则永不过期
     view_count = Column(Integer, default=0)
     max_downloads = Column(Integer, default=0)  # 0 = 无限
-    one_time = Column(Boolean, default=False)  # 一次性分享，访问后自动删除
+    one_time = Column(Boolean, default=False)  # 一次性分享
+    require_login = Column(Boolean, default=False)  # 需要登录才能访问
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     file = relationship("FileItem", back_populates="shares")

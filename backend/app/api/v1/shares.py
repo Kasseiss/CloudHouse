@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import joinedload
 
@@ -80,6 +80,7 @@ def create_share(
         expire_at=expire_at,
         max_downloads=getattr(body, 'max_downloads', 0) or 0,
         one_time=getattr(body, 'one_time', False) or False,
+        require_login=getattr(body, 'require_login', False) or False,
     )
     db.add(share)
     db.flush()
@@ -105,6 +106,7 @@ def create_share(
 def access_share(
     code: str,
     db: DbSession,
+    request: Request,
     password: str = Query(default="", description="提取码"),
 ) -> dict:
     """通过分享码公开访问一个已分享的文件。"""
@@ -112,6 +114,19 @@ def access_share(
     share = db.query(Share).options(joinedload(Share.file)).filter(Share.code == code).first()
     if share is None:
         raise NotFoundException("分享不存在或已被删除")
+
+    # 需要登录的分享：检查认证
+    from app.api.v1.dependencies import decode_access_token
+    from app.models.user import User
+    if share.require_login:
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.removeprefix("Bearer ").strip() if auth_header.startswith("Bearer ") else ""
+        payload = decode_access_token(token) if token else None
+        if not payload:
+            raise UnauthorizedException("此分享需要登录后才能访问")
+        user = db.get(User, int(payload.get("sub", 0)))
+        if not user or not user.is_active:
+            raise UnauthorizedException("请先登录再访问此分享")
 
     # 检查是否过期
     if share.expire_at is not None and share.expire_at < datetime.now(timezone.utc):
