@@ -129,6 +129,36 @@ export default function HomePage() {
     }
   }, [contextMenu])
 
+  // Clipboard paste upload
+  useEffect(() => {
+    const handler = async (e: ClipboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      const items = e.clipboardData?.items
+      if (!items) return
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault()
+          const blob = item.getAsFile()
+          if (!blob) continue
+          const ext = item.type.split('/')[1] || 'png'
+          const file = new File([blob], `clipboard_${Date.now()}.${ext}`, { type: item.type })
+          setUploading(true)
+          setUploadProgress(0)
+          try {
+            await uploadFiles([file], parentId, setUploadProgress)
+            message.success('剪贴板图片已上传')
+            fetchFiles()
+            refreshTree()
+          } catch { /* handled */ }
+          finally { setUploading(false); setUploadProgress(0) }
+          break
+        }
+      }
+    }
+    window.addEventListener('paste', handler)
+    return () => window.removeEventListener('paste', handler)
+  }, [parentId])
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
