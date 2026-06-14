@@ -344,6 +344,14 @@ export default function HomePage() {
               />
               <Input value={shareUrl} readOnly onClick={(e) => (e.target as HTMLInputElement).select()} />
               <div style={{ marginTop: 4, color: '#999', fontSize: 11 }}>扫码即可访问分享文件</div>
+              <Button
+                type="link"
+                icon={<ShareAltOutlined />}
+                href={`mailto:?subject=分享文件: ${file.name}&body=我通过 CloudDisk 分享了文件 "${file.name}":%0A%0A${shareUrl}`}
+                style={{ marginTop: 8 }}
+              >
+                通过邮件分享
+              </Button>
             </div>
           ),
         })
