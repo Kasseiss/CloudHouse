@@ -602,11 +602,12 @@ export default function HomePage() {
       render: (t: string) => {
         const d = dayjs(t)
         const diff = dayjs().diff(d, 'minute')
-        if (diff < 1) return '刚刚'
-        if (diff < 60) return `${diff} 分钟前`
-        if (diff < 1440) return `${Math.floor(diff / 60)} 小时前`
-        if (diff < 43200) return `${Math.floor(diff / 1440)} 天前`
-        return d.format('YYYY-MM-DD')
+        const rel = diff < 1 ? '刚刚' :
+          diff < 60 ? `${diff} 分钟前` :
+          diff < 1440 ? `${Math.floor(diff / 60)} 小时前` :
+          diff < 43200 ? `${Math.floor(diff / 1440)} 天前` :
+          d.format('YYYY-MM-DD')
+        return <Tooltip title={d.format('YYYY-MM-DD HH:mm:ss')}>{rel}</Tooltip>
       }, width: 130 },
     { title: '下载', dataIndex: 'download_count', key: 'dl', sorter: (a: any, b: any) => (a.download_count || 0) - (b.download_count || 0), render: (_: any, r: FileItem) => r.is_dir ? '-' : (r as any).download_count || 0, width: 70 },
     {
