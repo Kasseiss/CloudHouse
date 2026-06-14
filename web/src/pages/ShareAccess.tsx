@@ -96,7 +96,16 @@ export default function ShareAccessPage() {
 
         {file?.is_dir && children && children.length > 0 && (
           <div style={{ marginTop: 16 }}>
-            <Title level={5}>文件夹内容</Title>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Title level={5} style={{ margin: 0 }}>文件夹内容</Title>
+              <Button
+                icon={<DownloadOutlined />}
+                href={`/api/v1/shares/${code}/download-all?password=${encodeURIComponent(share?.password || '')}`}
+                target="_blank"
+              >
+                打包下载全部
+              </Button>
+            </div>
             <List
               size="small"
               dataSource={children}

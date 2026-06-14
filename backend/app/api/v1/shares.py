@@ -1,5 +1,6 @@
 """分享 API 路由：创建、公开访问、公开下载、列表、删除。"""
 
+import os
 import secrets
 import string
 from datetime import datetime, timedelta, timezone
@@ -7,7 +8,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from fastapi import APIRouter, Query
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import joinedload
 
 from app.core.config import settings
@@ -173,6 +174,75 @@ def access_share(
 # ---------------------------------------------------------------------------
 # GET /shares/{code}/download  — 公开下载分享文件（无需登录）
 # ---------------------------------------------------------------------------
+
+@router.get("/{code}/download-all")
+def download_shared_folder(
+    code: str,
+    db: DbSession,
+    password: str = Query(default="", description="提取码"),
+):
+    """将分享文件夹的所有内容打包为 ZIP 下载（无需登录）。"""
+    import io as _io
+    import zipfile as _zipfile
+
+    share = db.query(Share).options(joinedload(Share.file)).filter(Share.code == code).first()
+    if share is None:
+        raise NotFoundException("分享不存在或已被删除")
+    if share.expire_at is not None and share.expire_at < datetime.now(timezone.utc):
+        raise BadRequestException("分享已过期")
+    if share.password and share.password != password:
+        raise BadRequestException("提取码错误")
+    if share.file is None or share.file.is_deleted:
+        raise NotFoundException("原文件已被删除")
+    if not share.file.is_dir:
+        raise BadRequestException("仅文件夹支持打包下载")
+
+    # 收集所有文件
+    def collect_files(folder_id: int) -> list[FileItem]:
+        results = []
+        children = db.query(FileItem).filter(
+            FileItem.parent_id == folder_id, FileItem.is_deleted == False
+        ).all()
+        for child in children:
+            if child.is_dir:
+                results.extend(collect_files(child.id))
+            elif child.storage_path:
+                results.append(child)
+        return results
+
+    all_files = collect_files(share.file.id)
+    if not all_files:
+        raise BadRequestException("文件夹为空")
+
+    # 下载限制检查
+    if share.max_downloads > 0 and share.view_count >= share.max_downloads:
+        raise BadRequestException("该分享已达到下载次数上限")
+    share.view_count += 1
+    db.commit()
+
+    buf = _io.BytesIO()
+    seen_names: dict[str, int] = {}
+    with _zipfile.ZipFile(buf, "w", _zipfile.ZIP_DEFLATED) as zf:
+        for item in all_files:
+            disk_path = Path(settings.UPLOAD_DIR) / item.storage_path
+            if not disk_path.exists():
+                continue
+            name = item.name
+            if name in seen_names:
+                seen_names[name] += 1
+                base, ext = os.path.splitext(name)
+                name = f"{base} ({seen_names[name]}){ext}"
+            else:
+                seen_names[name] = 0
+            zf.write(str(disk_path), arcname=name)
+
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={share.file.name}.zip"},
+    )
+
 
 @router.get("/{code}/download")
 def download_shared_file(
