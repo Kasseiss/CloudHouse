@@ -11,6 +11,7 @@ import {
   DeleteOutlined, EditOutlined, DownloadOutlined, ShareAltOutlined,
   SearchOutlined, ReloadOutlined, AppstoreOutlined, UnorderedListOutlined,
   CopyOutlined, EyeOutlined, KeyOutlined, StarOutlined, StarFilled, LinkOutlined, VerticalAlignTopOutlined, ColumnHeightOutlined,
+  ArrowLeftOutlined, ArrowRightOutlined,
 } from '@ant-design/icons'
 import {
   getFileList, uploadFiles, uploadFileWithChunks, mkdir, touchFile, renameFile, moveFiles, copyFile,
@@ -57,6 +58,8 @@ export default function HomePage() {
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [tableSize, setTableSize] = useState<'middle' | 'small'>('middle')
   const [foldersOnly, setFoldersOnly] = useState(false)
+  const [navStack, setNavStack] = useState<(number | null)[]>([null])
+  const [navPos, setNavPos] = useState(0)
   const [treeVisible, setTreeVisible] = useState(window.innerWidth >= 768)
   const isNarrow = typeof window !== 'undefined' && window.innerWidth < 768
   const [files, setFiles] = useState<FileItem[]>([])
@@ -228,11 +231,30 @@ export default function HomePage() {
     return () => window.removeEventListener('keydown', handler)
   }, [selectedRowKeys, files])
 
-  const navigateTo = (id: number | null) => {
-    if (id === null) {
-      setSearchParams({})
-    } else {
-      setSearchParams({ parent_id: String(id) })
+  const navigateTo = (id: number | null, addToHistory = true) => {
+    if (addToHistory) {
+      const newStack = navStack.slice(0, navPos + 1)
+      newStack.push(id)
+      setNavStack(newStack)
+      setNavPos(newStack.length - 1)
+    }
+    if (id === null) setSearchParams({})
+    else setSearchParams({ parent_id: String(id) })
+  }
+
+  const goBack = () => {
+    if (navPos > 0) {
+      const newPos = navPos - 1
+      setNavPos(newPos)
+      navigateTo(navStack[newPos], false)
+    }
+  }
+
+  const goForward = () => {
+    if (navPos < navStack.length - 1) {
+      const newPos = navPos + 1
+      setNavPos(newPos)
+      navigateTo(navStack[newPos], false)
     }
   }
 
@@ -675,6 +697,10 @@ export default function HomePage() {
           }}>打包下载</Button>
           <Button icon={<LinkOutlined />} onClick={handleImportUrl}>URL导入</Button>
           <Button icon={<FolderAddOutlined />} onClick={handleMkdir}>新建文件夹</Button>
+          <Space.Compact>
+            <Button icon={<ArrowLeftOutlined />} disabled={navPos <= 0} onClick={goBack} />
+            <Button icon={<ArrowRightOutlined />} disabled={navPos >= navStack.length - 1} onClick={goForward} />
+          </Space.Compact>
           <Button icon={<FileOutlined />} onClick={() => {
             let fname = ''
             Modal.confirm({
