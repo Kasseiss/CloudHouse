@@ -802,9 +802,18 @@ export default function HomePage() {
                 draggable
                 onDragStart={(e: React.DragEvent) => { e.dataTransfer.setData('text/plain', String(f.id)); e.dataTransfer.effectAllowed = 'move' }}
                 cover={
-                  <div style={{ fontSize: 48, padding: '16px 0', background: '#fafafa' }}>
-                    {getFileIcon(f)}
-                  </div>
+                  !f.is_dir && f.mime_type.startsWith('image/') ? (
+                    <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', overflow: 'hidden' }}>
+                      <img src={`/api/v1/files/${f.id}/preview`} alt={f.name}
+                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 48, padding: '16px 0', background: '#fafafa' }}>
+                      {getFileIcon(f)}
+                    </div>
+                  )
                 }
                 actions={[
                   !f.is_dir && <EyeOutlined key="preview" onClick={() => handlePreview(f)} />,
