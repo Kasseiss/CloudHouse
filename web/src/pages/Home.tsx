@@ -215,14 +215,19 @@ export default function HomePage() {
           width: 400,
           content: (
             <div style={{ fontSize: 13, lineHeight: 2 }}>
+              <div><kbd>Enter</kbd> — 打开/预览选中文件</div>
               <div><kbd>Delete</kbd> — 删除选中文件</div>
-              <div><kbd>F2</kbd> — 重命名单个选中文件</div>
+              <div><kbd>F2</kbd> — 重命名单个文件</div>
               <div><kbd>Ctrl+A</kbd> — 全选</div>
+              <div><kbd>Ctrl+S</kbd> — 下载选中</div>
+              <div><kbd>Ctrl+F</kbd> — 搜索</div>
+              <div><kbd>Ctrl+U</kbd> — 上传</div>
+              <div><kbd>Ctrl+V</kbd> — 粘贴图片上传</div>
               <div><kbd>Ctrl+Shift+N</kbd> — 新建文件夹</div>
-              <div><kbd>Ctrl+U</kbd> — 打开上传对话框</div>
-              <div><kbd>Ctrl+V</kbd> — 粘贴剪贴板图片上传</div>
+              <div><kbd>Home</kbd> — 根目录</div>
+              <div><kbd>Backspace</kbd> — 上级目录</div>
               <div><kbd>Escape</kbd> — 取消选择</div>
-              <div><kbd>?</kbd> — 显示此帮助</div>
+              <div><kbd>?</kbd> — 快捷键帮助</div>
             </div>
           ),
         })
