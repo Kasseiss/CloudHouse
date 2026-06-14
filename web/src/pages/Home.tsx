@@ -771,6 +771,7 @@ export default function HomePage() {
         dataSource={displayFiles}
         loading={loading}
         sticky={{ offsetHeader: 0 }}
+        rowClassName={(_, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
         rowSelection={{
           selectedRowKeys,
           onChange: (keys) => setSelectedRowKeys(keys as number[]),

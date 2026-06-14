@@ -11,6 +11,9 @@ body {
 [data-theme='dark'] body {
   background: #141414;
 }
+.table-row-even { background: transparent; }
+.table-row-odd { background: rgba(0,0,0,0.02); }
+[data-theme='dark'] .table-row-odd { background: rgba(255,255,255,0.02); }
 #root {
   min-height: 100vh;
 }
