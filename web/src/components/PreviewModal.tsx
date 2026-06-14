@@ -290,9 +290,8 @@ export default function PreviewModal({ open, file, onClose, siblingImages, onNav
       onCancel={onClose}
       footer={
         <Space>
-          <a href={downloadUrl} download={file.name}>
-            <Button type="primary" icon={<DownloadOutlined />}>下载</Button>
-          </a>
+          <Button icon={<DownloadOutlined />} onClick={() => window.open(downloadUrl, '_blank')}>下载</Button>
+          <Button onClick={() => window.open(previewUrl, '_blank')}>新窗口打开</Button>
           <Button icon={<CloseOutlined />} onClick={onClose}>关闭</Button>
         </Space>
       }
