@@ -548,7 +548,7 @@ export default function HomePage() {
       ),
     },
     { title: '大小', dataIndex: 'file_size', key: 'size', sorter: (a: FileItem, b: FileItem) => a.file_size - b.file_size, render: (s: number, r: FileItem) => r.is_dir ? '-' : formatBytes(s), width: 120 },
-    { title: '类型', dataIndex: 'mime_type', key: 'mime', render: (t: string, r: FileItem) => r.is_dir ? '文件夹' : t, width: 150 },
+    { title: '类型', dataIndex: 'mime_type', key: 'mime', sorter: (a: FileItem, b: FileItem) => (a.is_dir ? 'folder' : a.mime_type).localeCompare(b.is_dir ? 'folder' : b.mime_type), render: (t: string, r: FileItem) => r.is_dir ? '文件夹' : t.split('/').pop() || t, width: 120 },
     { title: '修改时间', dataIndex: 'updated_at', key: 'time', sorter: (a: FileItem, b: FileItem) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(), defaultSortOrder: 'descend',
       render: (t: string) => {
         const d = dayjs(t)
