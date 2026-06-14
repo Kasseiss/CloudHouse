@@ -209,9 +209,19 @@ export default function HomePage() {
 
   const handleRename = (file: FileItem) => {
     let name = file.name
+    const oldExt = file.name.includes('.') ? file.name.split('.').pop()?.toLowerCase() : ''
     Modal.confirm({
       title: '重命名',
-      content: <Input defaultValue={file.name} onChange={(e) => { name = e.target.value }} />,
+      content: (
+        <div>
+          <Input defaultValue={file.name} onChange={(e) => { name = e.target.value }} />
+          {oldExt && name.includes('.') && name.split('.').pop()?.toLowerCase() !== oldExt && (
+            <p style={{ color: '#faad14', fontSize: 12, marginTop: 4 }}>
+              ⚠ 扩展名从 .{oldExt} 变更，文件类型可能无法识别
+            </p>
+          )}
+        </div>
+      ),
       onOk: async () => {
         await renameFile(file.id, name)
         message.success('重命名成功')
