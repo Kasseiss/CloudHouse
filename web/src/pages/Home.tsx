@@ -680,7 +680,13 @@ export default function HomePage() {
       )}
       </LayoutContent>
     </Layout>
-    <PreviewModal open={!!previewFile} file={previewFile} onClose={() => setPreviewFile(null)} />
+    <PreviewModal
+      open={!!previewFile}
+      file={previewFile}
+      onClose={() => setPreviewFile(null)}
+      siblingImages={displayFiles.filter(f => !f.is_dir && ['jpg','jpeg','png','gif','bmp','webp','svg'].includes(f.name.split('.').pop()?.toLowerCase() || '')).map(f => ({ id: f.id, name: f.name }))}
+      onNavigate={(id) => setPreviewFile(displayFiles.find(f => f.id === id) || null)}
+    />
     <FileDetail
       file={detailFile}
       open={!!detailFile}

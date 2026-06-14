@@ -8,6 +8,8 @@ interface Props {
   open: boolean
   file: { id: number; name: string; mime_type: string; file_size: number } | null
   onClose: () => void
+  siblingImages?: { id: number; name: string }[]
+  onNavigate?: (fileId: number) => void
 }
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml']
@@ -129,7 +131,7 @@ function CodePreview({ url }: { url: string }) {
   )
 }
 
-export default function PreviewModal({ open, file, onClose }: Props) {
+export default function PreviewModal({ open, file, onClose, siblingImages, onNavigate }: Props) {
   if (!file) return null
 
   const previewUrl = `/api/v1/files/${file.id}/preview`
@@ -138,9 +140,20 @@ export default function PreviewModal({ open, file, onClose }: Props) {
 
   const renderContent = () => {
     if (IMAGE_TYPES.includes(mime)) {
+      const siblings = siblingImages || []
+      const currentIdx = siblings.findIndex(s => s.id === file.id)
+      const prev = currentIdx > 0 ? siblings[currentIdx - 1] : null
+      const next = currentIdx < siblings.length - 1 ? siblings[currentIdx + 1] : null
       return (
-        <div style={{ textAlign: 'center' }}>
-          <Image src={previewUrl} alt={file.name} style={{ maxHeight: '65vh' }} />
+        <div style={{ textAlign: 'center', position: 'relative' }}>
+          <Image src={previewUrl} alt={file.name} style={{ maxHeight: '60vh' }} />
+          {(prev || next) && (
+            <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', gap: 16, alignItems: 'center' }}>
+              <Button disabled={!prev} onClick={() => prev && onNavigate?.(prev.id)}>← 上一张</Button>
+              <span style={{ color: '#999', fontSize: 12 }}>{currentIdx + 1} / {siblings.length}</span>
+              <Button disabled={!next} onClick={() => next && onNavigate?.(next.id)}>下一张 →</Button>
+            </div>
+          )}
         </div>
       )
     }
