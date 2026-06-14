@@ -630,6 +630,8 @@ export default function HomePage() {
                 onClick={() => setDetailFile(f)}
                 onDoubleClick={() => f.is_dir && navigateTo(f.id)}
                 onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, file: f }) }}
+                draggable
+                onDragStart={(e: React.DragEvent) => { e.dataTransfer.setData('text/plain', String(f.id)); e.dataTransfer.effectAllowed = 'move' }}
                 cover={
                   <div style={{ fontSize: 48, padding: '16px 0', background: '#fafafa' }}>
                     {getFileIcon(f)}
