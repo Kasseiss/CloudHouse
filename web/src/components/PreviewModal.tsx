@@ -242,10 +242,20 @@ export default function PreviewModal({ open, file, onClose, siblingImages, onNav
     }
     if (VIDEO_TYPES.includes(mime)) {
       return (
-        <video controls style={{ maxWidth: '100%', maxHeight: '60vh' }}>
-          <source src={previewUrl} type={mime} />
-          您的浏览器不支持播放此视频
-        </video>
+        <div>
+          <video controls style={{ maxWidth: '100%', maxHeight: '55vh' }}
+            onLoadedMetadata={(e: any) => {
+              const dur = e.target.duration
+              const mins = Math.floor(dur / 60)
+              const secs = Math.floor(dur % 60)
+              const el = document.getElementById('vid-dur')
+              if (el) el.textContent = `时长: ${mins}:${secs.toString().padStart(2, '0')}`
+            }}
+          >
+            <source src={previewUrl} type={mime} />
+          </video>
+          <div id="vid-dur" style={{ color: '#999', fontSize: 12, marginTop: 4 }} />
+        </div>
       )
     }
     if (AUDIO_TYPES.includes(mime)) {
