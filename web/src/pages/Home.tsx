@@ -634,6 +634,14 @@ export default function HomePage() {
           )}
           <span style={{ fontSize: 13, color: '#999', marginLeft: 8 }}>
             {displayFiles.length} 项
+            {(() => {
+              const total = displayFiles.filter(f => !f.is_dir).reduce((s, f) => s + f.file_size, 0)
+              if (total === 0) return ''
+              const sizeStr = total > 1073741824 ? `${(total / 1073741824).toFixed(1)} GB` :
+                total > 1048576 ? `${(total / 1048576).toFixed(1)} MB` :
+                total > 1024 ? `${(total / 1024).toFixed(0)} KB` : `${total} B`
+              return ` · ${sizeStr}`
+            })()}
             {typeFilter !== 'all' && ` · ${typeFilter}`}
           </span>
           <Upload.Dragger
