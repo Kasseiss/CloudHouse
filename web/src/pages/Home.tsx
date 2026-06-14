@@ -176,6 +176,9 @@ export default function HomePage() {
         e.preventDefault()
         const uploadBtn = document.querySelector('.ant-upload input[type="file"]') as HTMLInputElement
         if (uploadBtn) uploadBtn.click()
+      } else if (e.key === 'n' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+        e.preventDefault()
+        handleMkdir()
       } else if (e.key === '?') {
         e.preventDefault()
         Modal.info({
@@ -186,6 +189,7 @@ export default function HomePage() {
               <div><kbd>Delete</kbd> — 删除选中文件</div>
               <div><kbd>F2</kbd> — 重命名单个选中文件</div>
               <div><kbd>Ctrl+A</kbd> — 全选</div>
+              <div><kbd>Ctrl+Shift+N</kbd> — 新建文件夹</div>
               <div><kbd>Ctrl+U</kbd> — 打开上传对话框</div>
               <div><kbd>Ctrl+V</kbd> — 粘贴剪贴板图片上传</div>
               <div><kbd>Escape</kbd> — 取消选择</div>
