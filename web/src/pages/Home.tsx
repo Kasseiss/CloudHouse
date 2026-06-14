@@ -505,8 +505,16 @@ export default function HomePage() {
               },
             })
           }}>新建文件</Button>
-          {selectedRowKeys.length > 0 && (
+          {selectedRowKeys.length > 0 && (() => {
+            const totalSize = displayFiles.filter(f => selectedRowKeys.includes(f.id) && !f.is_dir).reduce((s, f) => s + f.file_size, 0)
+            const sizeStr = totalSize > 1073741824 ? `${(totalSize / 1073741824).toFixed(2)} GB` :
+              totalSize > 1048576 ? `${(totalSize / 1048576).toFixed(1)} MB` :
+              totalSize > 1024 ? `${(totalSize / 1024).toFixed(1)} KB` : `${totalSize} B`
+            return (
             <>
+              <span style={{ fontSize: 12, color: '#666', alignSelf: 'center' }}>
+                已选 {selectedRowKeys.length} 项 · {sizeStr}
+              </span>
               <Button icon={<DownloadOutlined />} onClick={() => {
                 batchDownload(selectedRowKeys).then(() => message.success('ZIP 下载已开始'))
               }}>
@@ -522,7 +530,8 @@ export default function HomePage() {
                 删除选中({selectedRowKeys.length})
               </Button>
             </>
-          )}
+            )
+          })()}
           {uploading && <Progress percent={uploadProgress} size="small" style={{ width: 100 }} />}
         </Space>
         <Space>
