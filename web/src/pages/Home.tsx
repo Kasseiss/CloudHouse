@@ -56,6 +56,7 @@ export default function HomePage() {
   const [showStarredOnly, setShowStarredOnly] = useState(false)
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [tableSize, setTableSize] = useState<'middle' | 'small'>('middle')
+  const [foldersOnly, setFoldersOnly] = useState(false)
   const [treeVisible, setTreeVisible] = useState(window.innerWidth >= 768)
   const isNarrow = typeof window !== 'undefined' && window.innerWidth < 768
   const [files, setFiles] = useState<FileItem[]>([])
@@ -92,8 +93,9 @@ export default function HomePage() {
     else if (typeFilter === 'archive') result = result.filter(f =>
       f.mime_type.includes('zip') || f.mime_type.includes('rar') || f.mime_type.includes('7z') ||
       f.mime_type.includes('tar') || f.mime_type.includes('gzip'))
+    if (foldersOnly) result = result.filter(f => f.is_dir)
     return result
-  }, [files, showStarredOnly, typeFilter, isStarred])
+  }, [files, showStarredOnly, typeFilter, isStarred, foldersOnly])
 
   const parentId = searchParams.get('parent_id') ? Number(searchParams.get('parent_id')) : null
   const [breadcrumb, setBreadcrumb] = useState<{ id: number | null; name: string }[]>([{ id: null, name: '根目录' }])
@@ -690,11 +692,18 @@ export default function HomePage() {
             onClick={() => setTreeVisible(!treeVisible)}
           />
           {viewMode === 'list' && (
-            <Button
-              icon={<ColumnHeightOutlined />}
-              onClick={() => setTableSize(tableSize === 'middle' ? 'small' : 'middle')}
-              type={tableSize === 'small' ? 'primary' : 'default'}
-            />
+            <>
+              <Button
+                type={foldersOnly ? 'primary' : 'default'}
+                icon={<FolderOutlined />}
+                onClick={() => setFoldersOnly(!foldersOnly)}
+              >{foldersOnly ? '仅文件夹' : ''}</Button>
+              <Button
+                icon={<ColumnHeightOutlined />}
+                onClick={() => setTableSize(tableSize === 'middle' ? 'small' : 'middle')}
+                type={tableSize === 'small' ? 'primary' : 'default'}
+              />
+            </>
           )}
           <Button
             icon={viewMode === 'list' ? <AppstoreOutlined /> : <UnorderedListOutlined />}
