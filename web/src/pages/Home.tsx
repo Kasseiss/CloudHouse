@@ -167,7 +167,10 @@ export default function HomePage() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.key === 'Delete' && selectedRowKeys.length > 0) {
+      if (e.key === 'Enter' && selectedRowKeys.length === 1) {
+        const f = files.find(f => f.id === selectedRowKeys[0])
+        if (f) { if (f.is_dir) navigateTo(f.id); else setPreviewFile(f) }
+      } else if (e.key === 'Delete' && selectedRowKeys.length > 0) {
         handleBatchDelete()
       } else if (e.key === 'F2' && selectedRowKeys.length === 1) {
         const file = files.find(f => f.id === selectedRowKeys[0])
