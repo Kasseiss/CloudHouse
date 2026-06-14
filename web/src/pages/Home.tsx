@@ -586,6 +586,11 @@ export default function HomePage() {
       {/* Toolbar */}
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <Space>
+          {displayFiles.length > 0 && (
+            <Button size="small" type="text" onClick={() => setSelectedRowKeys(displayFiles.map(f => f.id))}>
+              全选 {displayFiles.length} 项
+            </Button>
+          )}
           <span style={{ fontSize: 13, color: '#999', marginLeft: 8 }}>
             {displayFiles.length} 项
             {typeFilter !== 'all' && ` · ${typeFilter}`}
