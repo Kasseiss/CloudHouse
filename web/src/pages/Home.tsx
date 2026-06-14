@@ -121,6 +121,11 @@ export default function HomePage() {
     }
   }, [parentId])
 
+  useEffect(() => {
+    const folderName = breadcrumb.length > 1 ? breadcrumb[breadcrumb.length - 1].name : 'CloudDisk'
+    document.title = `${folderName} · CloudDisk`
+  }, [breadcrumb])
+
   useEffect(() => { fetchFiles() }, [fetchFiles])
 
   useEffect(() => {
