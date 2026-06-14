@@ -170,7 +170,10 @@ export default function HomePage() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-      if (e.key === 'Backspace' && parentId !== null) {
+      if (e.key === 'Home') {
+        e.preventDefault()
+        navigateTo(null)
+      } else if (e.key === 'Backspace' && parentId !== null) {
         e.preventDefault()
         // 返回上级目录
         const parent = breadcrumb.length > 2 ? breadcrumb[breadcrumb.length - 2].id : null
