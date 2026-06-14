@@ -10,7 +10,7 @@ import {
   FolderOutlined, FolderOpenOutlined, FileOutlined, UploadOutlined, FolderAddOutlined,
   DeleteOutlined, EditOutlined, DownloadOutlined, ShareAltOutlined,
   SearchOutlined, ReloadOutlined, AppstoreOutlined, UnorderedListOutlined,
-  CopyOutlined, EyeOutlined, KeyOutlined, StarOutlined, StarFilled, LinkOutlined, VerticalAlignTopOutlined,
+  CopyOutlined, EyeOutlined, KeyOutlined, StarOutlined, StarFilled, LinkOutlined, VerticalAlignTopOutlined, ColumnHeightOutlined,
 } from '@ant-design/icons'
 import {
   getFileList, uploadFiles, uploadFileWithChunks, mkdir, touchFile, renameFile, moveFiles, copyFile,
@@ -54,6 +54,7 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showStarredOnly, setShowStarredOnly] = useState(false)
   const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [tableSize, setTableSize] = useState<'middle' | 'small'>('middle')
   const [treeVisible, setTreeVisible] = useState(window.innerWidth >= 768)
   const isNarrow = typeof window !== 'undefined' && window.innerWidth < 768
   const [files, setFiles] = useState<FileItem[]>([])
@@ -667,6 +668,13 @@ export default function HomePage() {
             icon={<FolderOutlined />}
             onClick={() => setTreeVisible(!treeVisible)}
           />
+          {viewMode === 'list' && (
+            <Button
+              icon={<ColumnHeightOutlined />}
+              onClick={() => setTableSize(tableSize === 'middle' ? 'small' : 'middle')}
+              type={tableSize === 'small' ? 'primary' : 'default'}
+            />
+          )}
           <Button
             icon={viewMode === 'list' ? <AppstoreOutlined /> : <UnorderedListOutlined />}
             onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
@@ -784,6 +792,7 @@ export default function HomePage() {
         columns={columns}
         dataSource={displayFiles}
         loading={loading}
+        size={tableSize}
         sticky={{ offsetHeader: 0 }}
         rowClassName={(_, index) => index % 2 === 0 ? 'table-row-even' : 'table-row-odd'}
         rowSelection={{
