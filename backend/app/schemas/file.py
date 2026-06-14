@@ -14,6 +14,7 @@ class FileOut(BaseModel):
     user_id: int
     is_deleted: bool
     download_count: int = 0
+    last_accessed_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
 

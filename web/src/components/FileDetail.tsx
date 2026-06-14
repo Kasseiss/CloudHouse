@@ -10,6 +10,7 @@ interface FileItem {
   id: number; name: string; file_size: number; mime_type: string
   is_dir: boolean; parent_id: number | null; created_at: string; updated_at: string
   download_count?: number
+  last_accessed_at?: string
 }
 
 interface Props {
@@ -104,6 +105,9 @@ export default function FileDetail({ file, open, onClose, onPreview, onDownload,
         <Descriptions.Item label="创建时间">{dayjs(file.created_at).format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>
         <Descriptions.Item label="修改时间">{dayjs(file.updated_at).format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>
         {!file.is_dir && <Descriptions.Item label="下载次数">{file.download_count || 0} 次</Descriptions.Item>}
+        {file.last_accessed_at && (
+          <Descriptions.Item label="最近访问">{dayjs(file.last_accessed_at).format('MM-DD HH:mm:ss')}</Descriptions.Item>
+        )}
       </Descriptions>
 
       {/* File Notes */}

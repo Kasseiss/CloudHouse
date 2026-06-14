@@ -17,6 +17,8 @@ export const deleteUser = (userId: number) => client.delete(`/admin/users/${user
 export const getSystemLogs = (params: { user_id?: number; action?: string; start_time?: string; end_time?: string; page?: number; page_size?: number }) =>
   client.get('/admin/logs', { params })
 
+export const getUsersSimple = () => client.get('/admin/users?page_size=1000')  // all users for dropdown
+
 export const getSystemConfig = () => client.get('/admin/config')
 
 export const updateSystemConfig = (data: { max_upload_size_mb?: number; allowed_extensions?: string; allow_registration?: boolean }) =>
