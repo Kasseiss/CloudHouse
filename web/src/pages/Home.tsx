@@ -449,7 +449,17 @@ export default function HomePage() {
             目录导航
             <Button type="text" size="small" onClick={() => setTreeVisible(false)}>✕</Button>
           </div>
-          <DirectoryTree onSelect={(id) => { navigateTo(id); if (window.innerWidth < 768) setTreeVisible(false) }} selectedId={parentId} refreshKey={treeVersion} />
+          <DirectoryTree
+            onSelect={(id) => { navigateTo(id); if (window.innerWidth < 768) setTreeVisible(false) }}
+            selectedId={parentId}
+            refreshKey={treeVersion}
+            onDropFile={async (fileId, targetId) => {
+              await moveFiles([fileId], targetId)
+              message.success('文件已移动')
+              fetchFiles()
+              refreshTree()
+            }}
+          />
           <div style={{ borderTop: '1px solid #f0f0f0' }}>
             <RecentActivity refreshKey={treeVersion} />
           </div>
@@ -630,6 +640,7 @@ export default function HomePage() {
         columns={columns}
         dataSource={displayFiles}
         loading={loading}
+        sticky={{ offsetHeader: 0 }}
         rowSelection={{
           selectedRowKeys,
           onChange: (keys) => setSelectedRowKeys(keys as number[]),
@@ -640,6 +651,11 @@ export default function HomePage() {
           onClick: () => setDetailFile(record),
           onDoubleClick: () => record.is_dir && navigateTo(record.id),
           onContextMenu: (e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, file: record }) },
+          draggable: true,
+          onDragStart: (e: React.DragEvent) => {
+            e.dataTransfer.setData('text/plain', String(record.id))
+            e.dataTransfer.effectAllowed = 'move'
+          },
         })}
       />
       )}
